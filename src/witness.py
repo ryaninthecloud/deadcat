@@ -17,7 +17,6 @@ def validate_configuration_file(filepath: str) -> dict:
     -dictionary: keys=[capture_interface, exlcuded_ips]
     '''
     parser = cps.ConfigParser()
-    configuration_dictionary = {}
 
     try:
         parser.read(filepath)
@@ -26,17 +25,23 @@ def validate_configuration_file(filepath: str) -> dict:
     except PermissionError:
         raise SystemExit(f"Permission denied when accessing {filepath}")
 
-    if not parser['DEADCAT_DEFAULT']:
-        raise SystemExit(f"{filepath} missing [DEFAULT_DEADCAT] section.")
+    try:
+        parser['DEADCAT_DEFAULT']
+    except KeyError:
+        raise SystemExit(f"Deadcat Error >> {filepath} missing [DEFAULT_DEADCAT] section.")
 
     default_configurations = parser['DEADCAT_DEFAULT']
 
-    if not default_configurations['capture_interface']:
+    try:
+        default_configurations['capture_interface']
+    except KeyError:
         raise SystemExit(f"{filepath} missing capture_interface in 'DEADCAT_DEFAULT'")
 
     capture_interface = default_configurations['capture_interface']
 
-    if not default_configurations['excluded_ips']:
+    try: 
+        default_configurations['excluded_ips']
+    except KeyError:
         raise SystemExit(f"{filepath} missing excluded_ips in 'DEADCAT_DEFAULT'")
 
     excluded_ips = default_configurations['excluded_ips'].strip("[]").split(',')
